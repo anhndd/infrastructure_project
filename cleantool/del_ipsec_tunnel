@@ -1,0 +1,5 @@
+sudo ip netns exec r1 ip xfrm state flush
+sudo ip netns exec r1 ip xfrm policy flush
+sudo ip netns exec r2 ip xfrm state flush
+sudo ip netns exec r2 ip xfrm policy flush
+

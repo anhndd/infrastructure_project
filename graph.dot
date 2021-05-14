@@ -1,0 +1,111 @@
+digraph G { 
+    label = "Net Lab";
+    labelloc = top;
+ 
+    node [shape=record];
+    edge [dir=both];
+subgraph cluster_0 {
+		label = h1;
+	
+        "h1-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h1-eth0</b></td></tr>
+                <tr><td align="left">IP: 192.168.100.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_1 {
+		label = h2;
+	
+	}
+subgraph cluster_2 {
+		label = h3;
+	
+        "h3-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h3-eth0</b></td></tr>
+                <tr><td align="left">IP: 192.168.100.2/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_3 {
+		label = h4;
+	
+	}
+subgraph cluster_4 {
+		label = r1;
+	
+        "r1-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r1-eth0</b></td></tr>
+                <tr><td align="left">IP: 172.16.1.253/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_5 {
+		label = r2;
+	
+        "r2-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r2-eth0</b></td></tr>
+                <tr><td align="left">IP: 172.16.2.253/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_6 {
+		label = rA;
+	
+        "rA-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>rA-eth0</b></td></tr>
+                <tr><td align="left">IP: 10.87.0.1/24</td></tr>
+            </table>
+        >];
+        "rA-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>rA-eth1</b></td></tr>
+                <tr><td align="left">IP: 172.16.1.254/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_7 {
+		label = rB;
+	
+        "rB-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>rB-eth0</b></td></tr>
+                <tr><td align="left">IP: 10.87.0.2/24</td></tr>
+            </table>
+        >];
+        "rB-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>rB-eth1</b></td></tr>
+                <tr><td align="left">IP: 172.16.2.254/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_8 {
+		label = sD;
+	
+        "sD" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>sD</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_9 {
+		label = sE;
+	
+        "sE" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>sE</b></td></tr>
+            </table>
+        >];
+	}
+ "sD"->"h3-eth0"; 
+ "sD"->"h4-eth0"; 
+ "sE"->"h1-eth0"; 
+ "sE"->"h2-eth0"; 
+ "sD"->"r1-eth1"; 
+ "sE"->"r2-eth1"; 
+}
