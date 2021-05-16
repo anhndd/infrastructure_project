@@ -10,13 +10,19 @@ subgraph cluster_0 {
         "h1-eth0" [label=<
             <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
                 <tr><td bgcolor="lightblue"><b>h1-eth0</b></td></tr>
-                <tr><td align="left">IP: 192.168.100.1/24</td></tr>
+                <tr><td align="left">IP: 192.168.100.10/24</td></tr>
             </table>
         >];
 	}
 subgraph cluster_1 {
 		label = h2;
 	
+        "h2-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h2-eth0</b></td></tr>
+                <tr><td align="left">IP: 192.168.200.1/24</td></tr>
+            </table>
+        >];
 	}
 subgraph cluster_2 {
 		label = h3;
@@ -24,13 +30,19 @@ subgraph cluster_2 {
         "h3-eth0" [label=<
             <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
                 <tr><td bgcolor="lightblue"><b>h3-eth0</b></td></tr>
-                <tr><td align="left">IP: 192.168.100.2/24</td></tr>
+                <tr><td align="left">IP: 192.168.100.17/24</td></tr>
             </table>
         >];
 	}
 subgraph cluster_3 {
 		label = h4;
 	
+        "h4-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h4-eth0</b></td></tr>
+                <tr><td align="left">IP: 192.168.200.2/24</td></tr>
+            </table>
+        >];
 	}
 subgraph cluster_4 {
 		label = r1;
@@ -41,6 +53,12 @@ subgraph cluster_4 {
                 <tr><td align="left">IP: 172.16.1.253/24</td></tr>
             </table>
         >];
+        "r1-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r1-eth1</b></td></tr>
+                <tr><td align="left">IP: 192.168.100.254\192.168.200.254/24</td></tr>
+            </table>
+        >];
 	}
 subgraph cluster_5 {
 		label = r2;
@@ -49,6 +67,12 @@ subgraph cluster_5 {
             <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
                 <tr><td bgcolor="lightblue"><b>r2-eth0</b></td></tr>
                 <tr><td align="left">IP: 172.16.2.253/24</td></tr>
+            </table>
+        >];
+        "r2-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r2-eth1</b></td></tr>
+                <tr><td align="left">IP: 192.168.100.253\192.168.200.253/24</td></tr>
             </table>
         >];
 	}
@@ -102,10 +126,44 @@ subgraph cluster_9 {
             </table>
         >];
 	}
+subgraph cluster_10 {
+		label = internet;
+	
+        "internet" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>internet</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_11 {
+		label = resC;
+	
+        "resC" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>resC</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_12 {
+		label = resB;
+	
+        "resB" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>resB</b></td></tr>
+            </table>
+        >];
+	}
  "sD"->"h3-eth0"; 
  "sD"->"h4-eth0"; 
  "sE"->"h1-eth0"; 
  "sE"->"h2-eth0"; 
  "sD"->"r1-eth1"; 
  "sE"->"r2-eth1"; 
+ "internet"->"rA-eth0"; 
+ "internet"->"rB-eth0"; 
+ "internet"->"host-internet"; 
+ "resC"->"r1-eth0"; 
+ "resC"->"rA-eth1"; 
+ "resB"->"r2-eth0"; 
+ "resB"->"rB-eth1"; 
 }

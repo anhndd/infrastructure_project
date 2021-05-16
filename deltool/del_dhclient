@@ -1,0 +1,7 @@
+#!/bin/bash -x
+
+ip netns exec h1 dhclient -r
+ip netns exec h3 dhclient -r
+
+
+

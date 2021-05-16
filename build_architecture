@@ -22,8 +22,10 @@ sudo ip netns exec rB sysctl net.ipv4.conf.all.forwarding=1
 # créer le switch
 ovs-vsctl add-br sD
 ovs-vsctl add-br sE
+ovs-vsctl add-br internet
 
-#sudo sysctl -w net.ipv6.conf.bridge_ipv6.accept_ra=2
+ovs-vsctl add-br resC
+ovs-vsctl add-br resB
 
 # créer les liens
 ip link add h1-eth0 type veth peer name sE-h1
@@ -32,12 +34,20 @@ ip link add h3-eth0 type veth peer name sD-h3
 ip link add h4-eth0 type veth peer name sD-h4
 
 ip link add r1-eth1 type veth peer name sD-r1
-ip link add r1-eth0 type veth peer name rA-eth1
 
 ip link add r2-eth1 type veth peer name sE-r2
-ip link add r2-eth0 type veth peer name rB-eth1
 
-ip link add rA-eth0 type veth peer name rB-eth0
+
+ip link add rA-eth0 type veth peer name internet-rA
+ip link add rB-eth0 type veth peer name internet-rB
+
+ip link add internet-host type veth peer name host-internet
+
+ip link add r1-eth0 type veth peer name resC-r1
+ip link add resC-rA type veth peer name rA-eth1
+
+ip link add r2-eth0 type veth peer name resB-r2
+ip link add resB-rB type veth peer name rB-eth1
 
 # accrocher les liens aux namespaces
 ip link set h1-eth0 netns h1
@@ -53,6 +63,15 @@ ovs-vsctl add-port sE sE-h2
 
 ovs-vsctl add-port sD sD-r1
 ovs-vsctl add-port sE sE-r2
+
+ovs-vsctl add-port internet internet-rA
+ovs-vsctl add-port internet internet-rB
+ovs-vsctl add-port internet internet-host
+
+ovs-vsctl add-port resC resC-r1
+ovs-vsctl add-port resC resC-rA
+ovs-vsctl add-port resB resB-r2
+ovs-vsctl add-port resB resB-rB
 
 # connecter les liens au routeur
 ip link set r1-eth1 netns r1
@@ -76,7 +95,18 @@ ip link set dev sE-h1 up
 ip link set dev sE-h2 up
 ip link set dev sE-r2 up
 
-# activer les interfaces des namespaces h1 et h2 
+ip link set dev internet-rA up
+ip link set dev internet-rB up
+ip link set dev internet-host up
+
+ip link set dev host-internet up
+
+ip link set dev resC-r1 up
+ip link set dev resC-rA up
+ip link set dev resB-r2 up
+ip link set dev resB-rB up
+
+# activer les interfaces des namespaces h1, h2, h3 et h4
 ip netns exec h1 ip link set dev h1-eth0 up
 ip netns exec h2 ip link set dev h2-eth0 up
 ip netns exec h3 ip link set dev h3-eth0 up
@@ -87,7 +117,7 @@ ip netns exec h2 ip link set dev lo up
 ip netns exec h3 ip link set dev lo up
 ip netns exec h4 ip link set dev lo up
 
-# activer les interfaces des namespaces r1 et r2 
+# activer les interfaces des namespaces r1, r2, rA et rB
 ip netns exec r1 ip link set dev r1-eth0 up
 ip netns exec r1 ip link set dev r1-eth1 up
 
@@ -105,6 +135,8 @@ ip netns exec r2 ip link set dev lo up
 ip netns exec rA ip link set dev lo up
 ip netns exec rB ip link set dev lo up
 
+ip link set dev lo up
+
 # configurer les réseaux sur rA, rB, r1, r2
 ip netns exec r1 ip a add dev r1-eth0 172.16.1.253/24
 ip netns exec r2 ip a add dev r2-eth0 172.16.2.253/24
@@ -115,13 +147,7 @@ ip netns exec rA ip a add dev rA-eth1 172.16.1.254/24
 ip netns exec rB ip a add dev rB-eth0 10.87.0.2/24
 ip netns exec rB ip a add dev rB-eth1 172.16.2.254/24
 
-# # configurer les réseaux sur h1,h2,h3,h4
-#ip netns exec h1 ip a add dev h1-eth0 192.168.100.1/24 brd 192.168.100.255
-#ip netns exec h2 ip a add dev h2-eth0 192.168.200.1/24 brd 192.168.200.255
-#ip netns exec h3 ip a add dev h3-eth0 192.168.100.2/24 brd 192.168.100.255
-#ip netns exec h4 ip a add dev h4-eth0 192.168.200.2/24 brd 192.168.200.255
-
-# # create VLAN h1, h2, h3, h4
+# set VLAN h1, h2, h3, h4
 sudo ip netns exec h1 ip link add link h1-eth0 name h1-eth0.100 type vlan id 100
 sudo ip netns exec h2 ip link add link h2-eth0 name h2-eth0.200 type vlan id 200
 sudo ip netns exec h3 ip link add link h3-eth0 name h3-eth0.100 type vlan id 100
@@ -137,36 +163,29 @@ sudo ip netns exec h2 ip addr add 192.168.200.1/24 dev h2-eth0.200
 sudo ip netns exec h3 ip addr add 192.168.100.2/24 dev h3-eth0.100
 sudo ip netns exec h4 ip addr add 192.168.200.2/24 dev h4-eth0.200
 
-
-# create VLAN r1,r2
-#sudo ip netns exec r1 ip link add link r1-eth1 name r1-eth1.100 type vlan id 100
-#sudo ip netns exec r1 ip link add link r1-eth1 name r1-eth1.200 type vlan id 200
-
-#sudo ip netns exec r1 ip addr add 192.168.100.254/24 dev r1-eth1.100
-#sudo ip netns exec r1 ip addr add 192.168.200.254/24 dev r1-eth1.200
-
-#sudo ip netns exec r2 ip link add link r2-eth1 name r2-eth1.100 type vlan id 100
-#sudo ip netns exec r2 ip link add link r2-eth1 name r2-eth1.200 type vlan id 200
-
-#sudo ip netns exec r2 ip addr add 192.168.100.253/24 dev r2-eth1.100
-#sudo ip netns exec r2 ip addr add 192.168.200.253/24 dev r2-eth1.200
-
-# activer les interfaces VLAN
-#sudo ip netns exec r1 ip link set dev r1-eth1.100 up
-#sudo ip netns exec r1 ip link set dev r1-eth1.200 up
-
-#sudo ip netns exec r2 ip link set dev r2-eth1.100 up
-#sudo ip netns exec r2 ip link set dev r2-eth1.200 up
-
-
 # configure routing table
 sudo ip netns exec r1 ip route add default via 172.16.1.254
 sudo ip netns exec r2 ip route add default via 172.16.2.254
-sudo ip netns exec rA ip route add default via 10.87.0.2
-sudo ip netns exec rB ip route add default via 10.87.0.1
+sudo ip netns exec rA ip route add default via 10.87.0.3
+sudo ip netns exec rB ip route add default via 10.87.0.3
+sudo ip netns exec rA ip route add 172.16.2.0/24 via 10.87.0.2
+sudo ip netns exec rB ip route add 172.16.1.0/24 via 10.87.0.1
+
+sudo ip netns exec h1 ip route add default via 192.168.100.253
+sudo ip netns exec h2 ip route add default via 192.168.200.253
+sudo ip netns exec h3 ip route add default via 192.168.100.254
+sudo ip netns exec h4 ip route add default via 192.168.200.254
+
+# Set default ip address of namespace VM host
+sudo sysctl -w net.ipv4.conf.all.forwarding=1
+
+# these command to draw graph.png
+#ip netns exec h1 ip a add dev h1-eth0 192.168.100.10/24 brd 192.168.100.255
+#ip netns exec h2 ip a add dev h2-eth0 192.168.200.1/24 brd 192.168.200.255
+#ip netns exec h3 ip a add dev h3-eth0 192.168.100.17/24 brd 192.168.100.255
+#ip netns exec h4 ip a add dev h4-eth0 192.168.200.2/24 brd 192.168.200.255
 
 
-sudo ip netns exec h1 ip route add default via 192.168.100.1
-sudo ip netns exec h2 ip route add default via 192.168.200.1
-sudo ip netns exec h3 ip route add default via 192.168.100.2
-sudo ip netns exec h4 ip route add default via 192.168.200.2
+#ip netns exec r1 ip a add dev r1-eth1 192.168.100.254\192.168.200.254/24 brd 192.168.100.255
+#ip netns exec r2 ip a add dev r2-eth1 192.168.100.253\192.168.200.253/24 brd 192.168.200.255
+

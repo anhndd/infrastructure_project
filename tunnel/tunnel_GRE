@@ -1,0 +1,25 @@
+sudo ip netns exec r1 ip link add eoip1 type gretap remote 172.16.2.253 local 172.16.1.253 nopmtudisc
+sudo ip netns exec r1 ip link set dev eoip1 up
+sudo ip netns exec r1 brctl addbr tunnel
+sudo ip netns exec r1 brctl addif tunnel eoip1
+sudo ip netns exec r1 brctl addif tunnel r1-eth1
+sudo ip netns exec r1 ip link set tunnel up
+sudo ip netns exec r1 ip link add link tunnel name tunnel.100 type vlan id 100
+sudo ip netns exec r1 ip link set tunnel.100 up
+sudo ip netns exec r1 ip link add link tunnel name tunnel.200 type vlan id 200
+sudo ip netns exec r1 ip link set tunnel.200 up
+sudo ip netns exec r1 ip addr add 192.168.100.254/24 dev tunnel.100
+sudo ip netns exec r1 ip addr add 192.168.200.254/24 dev tunnel.200
+
+sudo ip netns exec r2 ip link add eoip1 type gretap remote 172.16.1.253 local 172.16.2.253 nopmtudisc
+sudo ip netns exec r2 ip link set dev eoip1 up
+sudo ip netns exec r2 brctl addbr tunnel
+sudo ip netns exec r2 brctl addif tunnel eoip1
+sudo ip netns exec r2 brctl addif tunnel r2-eth1
+sudo ip netns exec r2 ip link set tunnel up
+sudo ip netns exec r2 ip link add link tunnel name tunnel.100 type vlan id 100
+sudo ip netns exec r2 ip link set tunnel.100 up
+sudo ip netns exec r2 ip link add link tunnel name tunnel.200 type vlan id 200
+sudo ip netns exec r2 ip link set tunnel.200 up
+sudo ip netns exec r2 ip addr add 192.168.100.253/24 dev tunnel.100
+sudo ip netns exec r2 ip addr add 192.168.200.253/24 dev tunnel.200

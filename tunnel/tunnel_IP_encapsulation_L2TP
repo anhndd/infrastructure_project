@@ -1,0 +1,30 @@
+# configure tunnel IP encapsulation
+# configure tunnel R1
+sudo ip netns exec r1 ip l2tp add tunnel remote 172.16.2.253 local 172.16.1.253 encap ip tunnel_id 3000 peer_tunnel_id 4000
+sudo ip netns exec r1 ip l2tp add session tunnel_id 3000 session_id 1000 peer_session_id 2000
+sudo ip netns exec r1 ip link set l2tpeth0 up
+sudo ip netns exec r1 brctl addbr tunnel
+sudo ip netns exec r1 brctl addif tunnel l2tpeth0
+sudo ip netns exec r1 brctl addif tunnel r1-eth1
+sudo ip netns exec r1 ip link set tunnel up
+sudo ip netns exec r1 ip link add link tunnel name tunnel.100 type vlan id 100
+sudo ip netns exec r1 ip link set tunnel.100 up
+sudo ip netns exec r1 ip link add link tunnel name tunnel.200 type vlan id 200
+sudo ip netns exec r1 ip link set tunnel.200 up
+sudo ip netns exec r1 ip addr add 192.168.100.254/24 dev tunnel.100
+sudo ip netns exec r1 ip addr add 192.168.200.254/24 dev tunnel.200
+
+# configure tunnel R2
+sudo ip netns exec r2 ip l2tp add tunnel remote 172.16.1.253 local 172.16.2.253 encap ip tunnel_id 4000 peer_tunnel_id 3000
+sudo ip netns exec r2 ip l2tp add session tunnel_id 4000 session_id 2000 peer_session_id 1000
+sudo ip netns exec r2 ip link set l2tpeth0 up
+sudo ip netns exec r2 brctl addbr tunnel
+sudo ip netns exec r2 brctl addif tunnel l2tpeth0
+sudo ip netns exec r2 brctl addif tunnel r2-eth1
+sudo ip netns exec r2 ip link set tunnel up
+sudo ip netns exec r2 ip link add link tunnel name tunnel.100 type vlan id 100
+sudo ip netns exec r2 ip link set tunnel.100 up
+sudo ip netns exec r2 ip link add link tunnel name tunnel.200 type vlan id 200
+sudo ip netns exec r2 ip link set tunnel.200 up
+sudo ip netns exec r2 ip addr add 192.168.100.253/24 dev tunnel.100
+sudo ip netns exec r2 ip addr add 192.168.200.253/24 dev tunnel.200

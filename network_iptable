@@ -1,2 +1,12 @@
-sudo iptables -t mangle -A PREROUTING -p tcp --sport 7890 -j NFQUEUE --queue-num 0
-sudo ip6tables -t mangle -A PREROUTING -i switchipv6 -p tcp --dport 7890 -j NFQUEUE --queue-num 0
+sudo iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -s 172.16.2.0/24 -j MASQUERADE
+
+sudo ip netns exec r1 iptables -t nat -s 192.168.100.0/24 -A POSTROUTING -j MASQUERADE
+sudo ip netns exec r1 iptables -t nat -s 192.168.200.0/24 -A POSTROUTING -j MASQUERADE
+
+sudo ip netns exec r2 iptables -t nat -s 192.168.100.0/24 -A POSTROUTING -j MASQUERADE
+sudo ip netns exec r2 iptables -t nat -s 192.168.200.0/24 -A POSTROUTING -j MASQUERADE
+
+sudo ip r add 172.16.1.0/24 via 10.87.0.1
+sudo ip r add 172.16.2.0/24 via 10.87.0.2
+ip a add dev host-internet 10.87.0.3/24
